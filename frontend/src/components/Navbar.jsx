@@ -28,6 +28,7 @@ const Navbar = () => {
             <Link to="/spending" className="text-gray-700 hover:text-blue-500 font-medium">Spending Insights</Link>
             <Link to="/investments" className="text-gray-700 hover:text-blue-500 font-medium">Investment Suggestions</Link>
             <Link to="/goals" className="text-gray-700 hover:text-blue-500 font-medium">Set Goals</Link>
+            <Link to="/market-insights" className="text-gray-700 hover:text-blue-500 font-medium">Market Insights</Link>
             <button onClick={handleLogout} className="text-gray-700 hover:text-red-500 font-medium">Logout</button>
           </>
         )}
