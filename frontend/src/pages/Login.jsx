@@ -2,6 +2,7 @@ import { useState } from "react";
 import { auth, googleProvider } from "../firebaseConfig";
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -9,26 +10,53 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError(""); // Reset previous errors
-
+  // 🔐 Send user data to backend and store token
+  const sendUserDataToBackend = async (user) => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      console.log("User logged in:", email);
+      const { uid, email, displayName } = user;
+      const response = await axios.post("http://localhost:5001/api/auth", { 
+        userid: uid, 
+        email, 
+        name: displayName || "Unknown User" 
+      });
+
+      // Store JWT token in localStorage
+      localStorage.setItem("token", response.data.token);
+      console.log("User authenticated, token stored");
+
       navigate("/dashboard");
     } catch (error) {
-      setError(error.message);
+      console.error("Error sending user data to backend:", error);
+      setError("Failed to authenticate. Please try again.");
     }
   };
 
+  // 📌 Email/Password Login
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log("User logged in:", userCredential.user);
+
+      // Send user data to backend for authentication
+      await sendUserDataToBackend(userCredential.user);
+    } catch (error) {
+      setError("Invalid email or password.");
+    }
+  };
+
+  // 📌 Google Login
   const handleGoogleLogin = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
-      console.log("Google login successful");
-      navigate("/dashboard");
+      const result = await signInWithPopup(auth, googleProvider);
+      console.log("Google login successful:", result.user);
+
+      // Send user data to backend for authentication
+      await sendUserDataToBackend(result.user);
     } catch (error) {
-      setError(error.message);
+      setError("Google login failed. Try again.");
     }
   };
 
