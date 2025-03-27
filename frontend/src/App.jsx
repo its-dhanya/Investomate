@@ -7,7 +7,8 @@ import Dashboard from "./pages/Dashboard";
 import Portfolio from "./pages/Portfolio";
 import SpendingInsights from "./pages/SpendingInsights";
 import InvestmentSuggestions from "./pages/InvestmentSuggestions";
-import MarketInsights from "./pages/MarketInsights"; 
+import MarketInsights from "./pages/MarketInsights";
+import InvestmentSimulation from "./pages/InvestmentSimulation";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/spending" element={<SpendingInsights />} />
         <Route path="/investments" element={<InvestmentSuggestions />} />
         <Route path="/market-insights" element={<MarketInsights />} />
+        <Route path="/investment-simulation" element={<InvestmentSimulation />} />
         <Route path="/" element={<h1 className="text-center text-3xl mt-10">Welcome to InvestoMate</h1>} />
       </Routes>
     </Router>
