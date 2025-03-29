@@ -26,13 +26,16 @@ import re
 import warnings
 import io
 from contextlib import redirect_stdout
-
+from dotenv import load_dotenv
 warnings.filterwarnings("ignore")
 
 # ------------------------------
 # Gemini API configuration
 # ------------------------------
-GEMINI_API_KEY = "AIzaSyDhEsfc5hd_awgRjPGHVRtNTHr_VoXD7Uk"
+load_dotenv()
+
+# Get the API key from environment variable
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY is not set.")
 
