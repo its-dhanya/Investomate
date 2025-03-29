@@ -227,12 +227,28 @@ def compute_historical_return(ticker, period="5y"):
 def get_extended_universe():
     # Define an extended list with at least 50 stocks.
     universe = [
-        "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "NVDA", "JPM", "V", "DIS", "KO",
-        "INTC", "CSCO", "ORCL", "IBM", "BA", "GE", "WMT", "PG", "NKE", "CRM",
-        "ADBE", "MMM", "HON", "AXP", "UPS", "PM", "CAT", "MCD", "WFC", "C",
-        "GS", "BK", "SBUX", "CVX", "XOM", "PFE", "MRK", "LLY", "ABT", "T",
-        "VZ", "CMCSA", "NFLX", "TWTR", "SNAP", "UBER", "LYFT", "F", "GM", "AMD"
-    ]
+    "HDFCBANK.NS", "ICICIBANK.NS", "SBIN.NS", "KOTAKBANK.NS", "AXISBANK.NS", "BAJFINANCE.NS", "BAJAJFINSV.NS", 
+    "HDFC.NS", "SBILIFE.NS", "HDFCLIFE.NS", "ICICIPRULI.NS",  # Banking & Financial Services
+    
+    "TCS.NS", "INFY.NS", "WIPRO.NS", "HCLTECH.NS", "TECHM.NS", "LTIM.NS", "PERSISTENT.NS",  # IT & Technology
+    
+    "RELIANCE.NS", "IOC.NS", "BPCL.NS", "ONGC.NS", "POWERGRID.NS", "NTPC.NS", "TATAPOWER.NS",  # Energy & Utilities
+    
+    "MARUTI.NS", "TATAMOTORS.NS", "M&M.NS", "BAJAJ-AUTO.NS", "HEROMOTOCO.NS",  # Automobile
+    
+    "HINDUNILVR.NS", "ITC.NS", "NESTLEIND.NS", "DABUR.NS", "BRITANNIA.NS",  # FMCG
+    
+    "SUNPHARMA.NS", "DRREDDY.NS", "CIPLA.NS", "LUPIN.NS",  # Pharmaceuticals
+    
+    "TATASTEEL.NS", "JSWSTEEL.NS", "HINDALCO.NS", "COALINDIA.NS",  # Metals & Mining
+    
+    "LT.NS", "GRASIM.NS", "ULTRACEMCO.NS", "SHREECEM.NS",  # Infrastructure & Cement
+    
+    "BHARTIARTL.NS", "DMART.NS", "INDIGO.NS", "ADANIENT.NS", "ADANIPORTS.NS"  # Telecom, Retail, Aviation, Adani Group
+]
+
+
+
     return universe
 
 # ------------------ PORTFOLIO RECOMMENDATION ------------------
@@ -318,7 +334,7 @@ def recommend_portfolio(risk_level, income, goal_duration, monthly_investment, t
     allocation = {ticker: weighted_scores[ticker] / total_weight for ticker in weighted_scores}
 
     # Apply a maximum weight cap (e.g., 30% or 0.30) dynamically
-    const_max_weight = 0.30
+    const_max_weight = 0.15
     allocation = cap_weights(allocation, const_max_weight)
 
     # Compute overall portfolio expected annual return using our short-term proxy
