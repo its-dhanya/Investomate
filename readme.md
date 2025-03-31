@@ -36,7 +36,6 @@ InvestoMate leverages state-of-the-art AI to help users manage their personal we
 graph TD;
   A[Investomate] --> B[User Authentication];
   A --> C[Dashboard];
-  A --> H[User Authentication];
   A --> I[Goal Setting];
   A --> J[Spending Insights];
   A --> D[Portfolio Management];
