@@ -33,6 +33,20 @@ InvestoMate leverages state-of-the-art AI to help users manage their personal we
 - **AI-Driven Insights:** Utilize machine learning models (e.g., LSTM for prediction, sentiment analysis) and integrate with third-party AI services to generate investment recommendations.
 - **Real-time Market Data:** Seamless integration with financial data APIs to provide up-to-date market information.
 
+## Flow Chart
+```mermaid
+graph TD;
+  A[Investomate] --> B[User Authentication];
+  A --> C[Dashboard];
+  A --> H[User Authentication];
+  A --> I[Goal Setting];
+  A --> J[Spending Insights];
+  A --> D[Portfolio Management];
+  D --> E[Risk Analysis];
+  D --> F[Returns];
+  A --> G[Market Insights];
+```
+
 ## Repository Information
 
 This repository is actively maintained on GitHub:
@@ -158,28 +172,6 @@ Below are screenshots showcasing different UI sections of InvestoMate:
 
 ### **Investment Insights**
 ![insights](https://github.com/user-attachments/assets/969edfdb-7896-4684-91d0-4a71a1e87b5c)
-
-
-
-
-
-
-
-
-## Flow Chart
-```mermaid
-graph TD;
-  A[Investomate] --> B[User Authentication];
-  A --> C[Dashboard];
-  A --> H[User Authentication];
-  A --> I[Goal Setting];
-  A --> J[Spending Insights];
-  A --> D[Portfolio Management];
-  D --> E[Risk Analysis];
-  D --> F[Returns];
-  A --> G[Market Insights];
-```
-
 
 
 ## Troubleshooting
