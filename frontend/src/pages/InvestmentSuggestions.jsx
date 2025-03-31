@@ -1,70 +1,55 @@
-// src/App.jsx
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useState } from "react";
+import { useInsights } from "../contexts/Insightscontext";
 
 function App() {
-  const [insights, setInsights] = useState({});
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    axios.get('http://localhost:5001/api/insights')
-      .then(response => {
-        console.log("Insights response:", response.data);
-        setInsights(response.data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching insights:', error);
-        setLoading(false);
-      });
-  }, []);
-
-  // Helper function to determine text color & symbol
+  const { insights, loading } = useInsights();
+  const [showResults, setShowResults] = useState(false);
   const getSentimentStyle = (insight) => {
     const text = insight.toLowerCase();
     if (text.includes("strong buy") || text.includes("buy")) {
-      return {
-        colorClass: "text-green-700 font-bold",
-        symbol: "↑",
-      };
+      return { colorClass: "text-green-700 font-bold", symbol: "↑" };
     } else if (text.includes("strong sell") || text.includes("sell")) {
-      return {
-        colorClass: "text-red-700 font-bold",
-        symbol: "↓",
-      };
+      return { colorClass: "text-red-700 font-bold", symbol: "↓" };
     } else if (text.includes("hold")) {
-      return {
-        colorClass: "text-yellow-600 font-bold",
-        symbol: "→",
-      };
+      return { colorClass: "text-yellow-600 font-bold", symbol: "→" };
     } else if (text.includes("cautious")) {
-      return {
-        colorClass: "text-orange-600 font-semibold",
-        symbol: "⚠",
-      };
+      return { colorClass: "text-orange-600 font-semibold", symbol: "⚠" };
     }
-    // Default
-    return {
-      colorClass: "text-gray-800",
-      symbol: "",
-    };
+    return { colorClass: "text-gray-800", symbol: "" };
   };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-gray-100">
-        <p className="text-xl">Loading insights...</p>
+        <p className="text-xl">Loading insights in the background...</p>
       </div>
     );
   }
 
+  if (!showResults) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col justify-center items-center">
+        <h1 className="text-3xl font-bold mb-6">Stock Insights</h1>
+        <p className="mb-4 text-gray-700">
+          The insights have been preloaded since you logged in. Click below to view the results.
+        </p>
+        <button
+          onClick={() => setShowResults(true)}
+          className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition font-semibold"
+        >
+          Show Insights
+        </button>
+      </div>
+    );
+  }
+
+  // Render the insights results.
   return (
     <div className="min-h-screen bg-white">
-      {/* Top Header */}
       <div className="bg-gradient-to-r from-indigo-600 to-blue-500 py-8 mb-4">
         <h1 className="text-3xl font-bold text-center text-white">Stock Insights</h1>
         <p className="mt-2 text-center text-white text-lg">
-          Below are sentiment-based insights and LSTM predictions for trending stocks
+          Below are sentiment-based insights and LSTM predictions for trending stocks.
         </p>
       </div>
 
@@ -86,10 +71,7 @@ function App() {
                 {Object.entries(insights).map(([ticker, insight], idx) => {
                   const { colorClass, symbol } = getSentimentStyle(insight);
                   return (
-                    <tr
-                      key={ticker}
-                      className={idx % 2 === 0 ? "bg-gray-50" : "bg-white"}
-                    >
+                    <tr key={ticker} className={idx % 2 === 0 ? "bg-gray-50" : "bg-white"}>
                       <td className="py-4 px-6 border-b font-semibold text-blue-800">
                         {ticker}
                       </td>

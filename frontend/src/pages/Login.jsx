@@ -10,7 +10,6 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  // 🔐 Send user data to backend and store token
   const sendUserDataToBackend = async (user) => {
     try {
       const { uid, email, displayName } = user;
@@ -20,40 +19,31 @@ const Login = () => {
         name: displayName || "Unknown User" 
       });
 
-      // Store JWT token in localStorage
       localStorage.setItem("token", response.data.token);
-      console.log("User authenticated, token stored");
 
       navigate("/dashboard");
     } catch (error) {
-      console.error("Error sending user data to backend:", error);
       setError("Failed to authenticate. Please try again.");
     }
   };
 
-  // 📌 Email/Password Login
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log("User logged in:", userCredential.user);
 
-      // Send user data to backend for authentication
       await sendUserDataToBackend(userCredential.user);
     } catch (error) {
       setError("Invalid email or password.");
     }
   };
 
-  // 📌 Google Login
   const handleGoogleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      console.log("Google login successful:", result.user);
 
-      // Send user data to backend for authentication
       await sendUserDataToBackend(result.user);
     } catch (error) {
       setError("Google login failed. Try again.");

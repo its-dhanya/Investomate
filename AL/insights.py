@@ -26,25 +26,20 @@ import re
 import warnings
 import io
 from contextlib import redirect_stdout
+from dotenv import load_dotenv
 
 warnings.filterwarnings("ignore")
+load_dotenv()
 
-# ------------------------------
-# Gemini API configuration
-# ------------------------------
-GEMINI_API_KEY = "AIzaSyDhEsfc5hd_awgRjPGHVRtNTHr_VoXD7Uk"
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY is not set.")
-
 configure(api_key=GEMINI_API_KEY)
 model_id = "gemini-2.0-flash"
 model = GenerativeModel(model_id)
 
-# ------------------------------
-# Caching settings for articles
-# ------------------------------
 CACHE_FILE = "articles_cache.json"
-CACHE_EXPIRY = 3600  # seconds (1 hour)
+CACHE_EXPIRY = 3600
 
 def load_cached_articles():
     if os.path.exists(CACHE_FILE):
@@ -53,7 +48,9 @@ def load_cached_articles():
             try:
                 with open(CACHE_FILE, "r", encoding="utf-8") as f:
                     data = json.load(f)
-                    return data.get("articles", [])
+                    articles = data.get("articles", [])
+                    if articles:
+                        return articles
             except Exception:
                 pass
     return None
@@ -65,12 +62,10 @@ def save_cached_articles(articles):
     except Exception:
         pass
 
-# ------------------------------
-# Moneycontrol scraper with multiple fallbacks
-# ------------------------------
 def get_moneycontrol_articles():
     cached = load_cached_articles()
-    if cached is not None:
+    if cached is not None and len(cached) > 0:
+        print("Using cached articles")
         return cached
 
     url = "https://www.moneycontrol.com/news/business/stocks/"
@@ -80,12 +75,13 @@ def get_moneycontrol_articles():
                        "Chrome/115.0.0.0 Safari/537.36"),
         "Referer": "https://www.moneycontrol.com/"
     }
+    urls = []
     try:
         response = requests.get(url, headers=headers, timeout=10)
         if response.status_code != 200:
+            print("Non-200 response", response.status_code, file=sys.stderr)
             return []
         soup = BeautifulSoup(response.text, 'html.parser')
-        urls = []
         selectors = [
             {"tag": "ul", "attrs": {"class": "oceanNewsLst"}},
             {"tag": "div", "attrs": {"class": "pcNews_lst"}},
@@ -93,7 +89,9 @@ def get_moneycontrol_articles():
             {"tag": "div", "attrs": {"id": "latestNews"}},
             {"tag": "section", "attrs": {"class": "newsSec"}},
             {"tag": "div", "attrs": {"class": "article_list"}},
-            {"tag": "div", "attrs": {"class": "latestNews"}}
+            {"tag": "div", "attrs": {"class": "latestNews"}},
+            {"tag": "div", "attrs": {"class": "div_live_news"}},
+            {"tag": "section", "attrs": {"id": "mc_story_box"}}
         ]
         container_found = False
         for sel in selectors:
@@ -107,14 +105,23 @@ def get_moneycontrol_articles():
                     container_found = True
                     break
         if not container_found or not urls:
+            print("Primary selectors failed, scanning all anchors", file=sys.stderr)
             for a in soup.find_all("a", href=True):
                 href = a["href"]
                 if "/news/business/stocks/" in href:
                     urls.append(href)
+        if not urls:
+            print("Anchor scan did not return results, using regex fallback", file=sys.stderr)
+            all_anchors = soup.find_all("a", href=True)
+            pattern = re.compile(r"/news/business/stocks/")
+            for a in all_anchors:
+                if pattern.search(a["href"]):
+                    urls.append(a["href"])
         urls = list(dict.fromkeys(urls))
         save_cached_articles(urls)
         return urls
-    except Exception:
+    except Exception as e:
+        print("Error scraping Moneycontrol articles:", e, file=sys.stderr)
         return []
 
 def get_article_text(article_url):
@@ -166,9 +173,6 @@ def get_trending_stock_sentiments():
     trending = sorted(avg_sentiments.items(), key=lambda x: x[1], reverse=True)
     return trending
 
-# ------------------------------
-# Financial Data & LSTM Functions
-# ------------------------------
 def get_stock_data(ticker):
     stock = yf.download(ticker + ".NS", period="1y", interval="1d")
     return stock["Close"].values.reshape(-1, 1)
@@ -249,9 +253,6 @@ def generate_gemini_insight(ticker, sentiment_score, predicted_prices, historica
     gemini_response = model.generate_content(prompt)
     return gemini_response.text.strip()
 
-# ------------------------------
-# STOCK_TICKERS dictionary
-# ------------------------------
 STOCK_TICKERS = {
     "HDFC Bank": "HDFCBANK", "ICICI Bank": "ICICIBANK", "State Bank of India": "SBIN",
     "Kotak Mahindra Bank": "KOTAKBANK", "Axis Bank": "AXISBANK", "IndusInd Bank": "INDUSINDBK",

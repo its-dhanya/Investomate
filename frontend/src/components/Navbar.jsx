@@ -5,7 +5,7 @@ import { useAuth } from "../AuthContext";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const { user } = useAuth(); // Get user authentication state
+  const { user } = useAuth(); 
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -18,19 +18,18 @@ const Navbar = () => {
 
       <div className="space-x-6">
         {user ? (
-          // Show these links only if the user is logged in
+         
           <>
             <Link to="/dashboard" className="text-gray-700 hover:text-blue-500 font-medium">Dashboard</Link>
             <Link to="/portfolio" className="text-gray-700 hover:text-blue-500 font-medium">Portfolio</Link>
             <Link to="/spending" className="text-gray-700 hover:text-blue-500 font-medium">Spending Insights</Link>
-            <Link to="/investments" className="text-gray-700 hover:text-blue-500 font-medium">Investment Suggestions</Link>
+            <Link to="/investments" className="text-gray-700 hover:text-blue-500 font-medium">Market Insights</Link>
             <Link to="/goals" className="text-gray-700 hover:text-blue-500 font-medium">Set Goals</Link>
-            <Link to="/market-insights" className="text-gray-700 hover:text-blue-500 font-medium">Market Insights</Link>
             <Link to="/investment-simulation" className="text-gray-700 hover:text-blue-500 font-medium">Investment Simulation</Link>
             <button onClick={handleLogout} className="text-gray-700 hover:text-red-500 font-medium">Logout</button>
           </>
         ) : (
-          // Show Login and Signup links if user is NOT logged in
+         
           <>
             <Link to="/login" className="text-gray-700 hover:text-blue-500 font-medium">Login</Link>
             <Link to="/register" className="text-gray-700 hover:text-blue-500 font-medium">Signup</Link>

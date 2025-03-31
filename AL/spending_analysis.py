@@ -28,10 +28,10 @@ def classify_expenses(expenses):
     return categorized_expenses
 
 def calculate_amortized_payment(target_amount, interest_rate, months):
-    interest_rate = max(interest_rate , 5)
+    interest_rate = max(interest_rate, 5)
     if interest_rate == 0:
         return target_amount / months
-    r = interest_rate / 100 / 12  # monthly rate
+    r = interest_rate / 100 / 12
     return (target_amount * r) / (1 - (1 + r) ** -months)
 
 def optimize_spending(income, expenses, target_amount, interest_rate, start_date, end_date):
@@ -39,48 +39,49 @@ def optimize_spending(income, expenses, target_amount, interest_rate, start_date
     total_needs = round(sum(amount for _, amount in categorized_expenses["Needs"]), 2)
     total_wants = round(sum(amount for _, amount in categorized_expenses["Wants"]), 2)
     total_savings = round(sum(amount for _, amount in categorized_expenses["Savings"]), 2)
-
     start = datetime.strptime(start_date, "%Y-%m-%d")
     end = datetime.strptime(end_date, "%Y-%m-%d")
     months = max(1, (end.year - start.year) * 12 + (end.month - start.month))
     monthly_savings_needed = round(calculate_amortized_payment(target_amount, interest_rate, months), 2)
+    if monthly_savings_needed > income:
+        return {
+            "error": f"Sorry, the target is not reachable within the given timeframe. Consider increasing income by at least {monthly_savings_needed - income:.2f} through other sources."
+        }
     discretionary_income = income - total_needs
-    optimized_wants = round(max(0, discretionary_income - monthly_savings_needed), 2)
-    optimized_savings = round(discretionary_income - optimized_wants, 2)
+    optimized_savings = round(min(discretionary_income, monthly_savings_needed), 2)
+    optimized_wants = round(discretionary_income - optimized_savings, 2)
     recommendations = {
-        "Optimized Needs": total_needs,
-        "Optimized Wants": optimized_wants,
-        "Optimized Savings": optimized_savings,
         "Monthly Savings Target": monthly_savings_needed,
         "Suggested Adjustments": {}
     }
     if optimized_savings < monthly_savings_needed:
         excess_needed = round(monthly_savings_needed - optimized_savings, 2)
         cut_wants = round(min(total_wants, excess_needed), 2)
-
         recommendations["Suggested Adjustments"]["Reduce Wants"] = cut_wants
         optimized_wants -= cut_wants
         optimized_savings += cut_wants
         if optimized_savings < monthly_savings_needed:
             recommendations["Suggested Adjustments"]["Increase Income"] = f"Increase income by at least {monthly_savings_needed - optimized_savings:.2f}"
-            recommendations["Suggested Adjustments"]["Reduce Needs"] = "Evaluate and reduce fixed expenses if possible."
+            recommendations["Suggested Adjustments"]["Reduce Needs"] = "Evaluate and reduce fixed expenses if possible. Consider cutting costs in groceries."
     else:
         recommendations["Suggested Adjustments"]["Success"] = "You are on the right track!"
     new_target_amount = target_amount - optimized_savings
-    new_months = months - 1 if months > 1 else 1
-    new_monthly_savings_needed = calculate_amortized_payment(new_target_amount, interest_rate, new_months)
+    new_months = max(1, months - 1)
+    new_monthly_savings_needed = round(calculate_amortized_payment(new_target_amount, interest_rate, new_months), 2)
     total_next_month = total_needs + optimized_wants + new_monthly_savings_needed
     scale_factor = income / total_next_month if total_next_month > 0 else 1
+    min_needs = round(max(total_needs * scale_factor, 1000), 2)
+    if min_needs > income:
+        recommendations["Suggested Adjustments"]["Cut Fixed Costs"] = "Consider reducing costs in groceries and other essential expenses."
     recommendations["Next Month Limits"] = {
-    "Needs": round(total_needs * scale_factor, 2),
-    "Wants": round(optimized_wants * scale_factor, 2),
-    "Savings": round(new_monthly_savings_needed * scale_factor, 2)
-}
-
+        "Needs": min_needs,
+        "Wants": round(max(0, optimized_wants * scale_factor), 2),
+        "Savings": round(max(0, new_monthly_savings_needed * scale_factor), 2)
+    }
+    recommendations["Next Month Savings Target"] = new_monthly_savings_needed
     return recommendations
 
 def main():
-    # Expect input JSON as a command-line argument.
     if len(sys.argv) < 2:
         print(json.dumps({"error": "No input provided"}))
         sys.exit(1)

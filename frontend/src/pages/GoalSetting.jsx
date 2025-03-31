@@ -13,10 +13,10 @@ const GoalSetting = () => {
   const [submitted, setSubmitted] = useState(false);
   const [goals, setGoals] = useState([]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const API_URL = "http://localhost:5001/api/goals";
 
-  // Retrieve JWT token from localStorage
   const token = localStorage.getItem("token");
   console.log("Retrieved token:", token);
 
@@ -30,27 +30,27 @@ const GoalSetting = () => {
         const response = await axios.get(API_URL, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // Assuming response data is an array of goal objects
         setGoals(response.data);
       } catch (err) {
         console.error("Error fetching goals:", err);
         setError("Failed to fetch goals.");
       }
     };
+
     fetchGoals();
   }, [token, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
-    // Ensure risk level is selected
     if (!riskLevel) {
       setError("Please select a risk level.");
+      setLoading(false);
       return;
     }
 
-    // Convert and validate numeric inputs
     const mIncome = Number(monthlyIncome);
     const gDuration = Number(goalDuration);
     const cInvestment = Number(currentInvestment);
@@ -63,12 +63,13 @@ const GoalSetting = () => {
       isNaN(tGoal)
     ) {
       setError("Please ensure all numeric fields are valid numbers.");
+      setLoading(false);
       return;
     }
 
-    // Ensure numeric values are positive (investment can be 0)
     if (mIncome <= 0 || gDuration <= 0 || cInvestment < 0 || tGoal <= 0) {
       setError("Numeric fields must be greater than 0 (investment can be 0).");
+      setLoading(false);
       return;
     }
 
@@ -80,7 +81,6 @@ const GoalSetting = () => {
       target_goal: tGoal,
     };
 
-    // Log payload for debugging
     console.log("Payload:", payload);
 
     try {
@@ -92,14 +92,13 @@ const GoalSetting = () => {
       });
       console.log("Goal saved:", response.data);
       setSubmitted(true);
-      // Append the newly created goal from the response.
-      // The server is expected to return an object with the new goal in a property (e.g. response.data.goal)
-      // Adjust based on your server's response structure.
       setGoals([...goals, response.data.goal]);
     } catch (err) {
       console.error("Error saving goal:", err);
       setError(err.response?.data?.error || "Failed to save goal. Try again.");
     }
+    
+    setLoading(false);
   };
 
   return (
@@ -111,7 +110,11 @@ const GoalSetting = () => {
         {error && (
           <p className="text-red-500 text-center mb-2">{error}</p>
         )}
-        {submitted ? (
+        {loading ? (
+          <div className="text-center">
+            <p className="text-xl text-gray-700">Your goal is being set. Please wait...</p>
+          </div>
+        ) : submitted ? (
           <div className="text-center">
             <FaCheckCircle className="text-green-500 text-4xl mx-auto mb-2" />
             <h3 className="text-xl font-semibold text-green-600">
@@ -202,7 +205,7 @@ const GoalSetting = () => {
             <ul className="space-y-2">
               {goals.map((goal) => (
                 <li
-                  key={goal.goalid} 
+                  key={goal.goalid}
                   className="p-3 border border-gray-300 rounded-lg bg-gray-50"
                 >
                   <strong>Risk Level:</strong> {goal.risk_level} |{" "}

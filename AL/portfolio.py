@@ -20,16 +20,14 @@ import logging
 
 from prophet import Prophet
 
-# Suppress FutureWarnings and TensorFlow logging
 warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=pd.errors.PerformanceWarning)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
 
-# Log output to file so that debug output does not mix with JSON result.
 logging.basicConfig(filename="debug.log", level=logging.INFO, 
                     format="%(asctime)s %(levelname)s: %(message)s")
 
-# ------------------ SEED & DIRECTORIES ------------------
 np.random.seed(42)
 tf.random.set_seed(42)
 
@@ -40,11 +38,10 @@ os.makedirs(MODEL_DIR, exist_ok=True)
 
 EPSILON = 0.005
 MIN_CANDIDATES = 2
-CACHE_DURATION = 86400  # 1 day in seconds
-LSTM_EPOCHS = 5         # Reduced training epochs
-LOOK_BACK = 50          # Fixed look-back window
+CACHE_DURATION = 86400
+LSTM_EPOCHS = 5
+LOOK_BACK = 50
 
-# ------------------ DATA CACHING ------------------
 def get_historical_data_cached(ticker, period="1y", interval="1d", cache_duration=CACHE_DURATION):
     cache_filename = os.path.join(CACHE_DIR, f"{ticker}_{period}_{interval}.pkl")
     now = time.time()
@@ -61,7 +58,6 @@ def get_historical_data_cached(ticker, period="1y", interval="1d", cache_duratio
 
 get_historical_data = get_historical_data_cached
 
-# ------------------ MODEL CACHING ------------------
 def load_trained_model(ticker, cache_duration=CACHE_DURATION):
     model_path = os.path.join(MODEL_DIR, f"{ticker}_lstm_model.keras")
     scaler_path = os.path.join(MODEL_DIR, f"{ticker}_scaler.pkl")
@@ -85,7 +81,6 @@ def save_trained_model(ticker, model, scaler):
         pickle.dump(scaler, f)
     logging.info(f"✅ Saved model for {ticker}")
 
-# ------------------ LSTM TRAINING & FORECASTING ------------------
 def train_lstm_model(ticker, epochs=LSTM_EPOCHS, batch_size=32):
     model, scaler, look_back = load_trained_model(ticker)
     if model is not None:
@@ -111,7 +106,6 @@ def train_lstm_model(ticker, epochs=LSTM_EPOCHS, batch_size=32):
     X, y = np.array(X), np.array(y)
     X = X.reshape(X.shape[0], X.shape[1], 1)
 
-    # Use an explicit Input layer
     model = Sequential([
         tf.keras.Input(shape=(X.shape[1], 1)),
         LSTM(50, return_sequences=True),
@@ -128,7 +122,6 @@ def train_lstm_model(ticker, epochs=LSTM_EPOCHS, batch_size=32):
     model.fit(X, y, epochs=epochs, batch_size=batch_size, verbose=0, callbacks=callbacks)
     save_trained_model(ticker, model, scaler)
     return model, scaler, LOOK_BACK
-
 
 def forecast_lstm_weekly(ticker, model, scaler, look_back=LOOK_BACK, forecast_weeks=5, days_per_week=5):
     df = get_historical_data(ticker, period="1y", interval="1d")
@@ -170,8 +163,7 @@ def compute_lstm_return(ticker, forecast_weeks=1, days_per_week=5):
     short_term_return = (final_pred_price - current_price) / current_price
     return short_term_return
 
-# ------------------ PROPHET FORECAST ------------------
-def forecast_prophet(ticker, forecast_days=10):  # Reduced forecast horizon to 10 days
+def forecast_prophet(ticker, forecast_days=10):
     df = get_historical_data(ticker)
     if df is None or df.empty:
         return None
@@ -190,7 +182,6 @@ def forecast_prophet(ticker, forecast_days=10):  # Reduced forecast horizon to 1
     forecast = model.predict(future)
     return float(forecast['yhat'].iloc[-1])
 
-# ------------------ ENSEMBLE FORECASTING ------------------
 def ensemble_forecast(ticker, forecast_days_prophet=10, forecast_days_lstm=5):
     prophet_price = forecast_prophet(ticker, forecast_days=forecast_days_prophet)
     lstm_model, scaler, look_back = train_lstm_model(ticker, epochs=20, batch_size=32)
@@ -205,12 +196,10 @@ def ensemble_forecast(ticker, forecast_days_prophet=10, forecast_days_lstm=5):
     lstm_return = (lstm_price - current_price) / current_price
     ensemble_return = 0.5 * prophet_return + 0.5 * lstm_return
 
-    # Use default dampening for speed
     dampening = 0.05  
     ensemble_return_adjusted = ensemble_return * dampening
     return ensemble_return_adjusted
 
-# ------------------ HISTORICAL RETURN CALCULATION ------------------
 def compute_historical_return(ticker, period="5y"):
     df = get_historical_data(ticker, period=period)
     if df is None or df.empty:
@@ -223,64 +212,48 @@ def compute_historical_return(ticker, period="5y"):
     annual_return = (end / start) ** (1 / years) - 1
     return annual_return
 
-# ------------------ EXTENDED UNIVERSE ------------------
 def get_extended_universe():
-    # Define an extended list with at least 50 stocks.
     universe = [
     "HDFCBANK.NS", "ICICIBANK.NS", "SBIN.NS", "KOTAKBANK.NS", "AXISBANK.NS", "BAJFINANCE.NS", "BAJAJFINSV.NS", 
-    "HDFC.NS", "SBILIFE.NS", "HDFCLIFE.NS", "ICICIPRULI.NS",  # Banking & Financial Services
+    "HDFC.NS", "SBILIFE.NS", "HDFCLIFE.NS", "ICICIPRULI.NS",
     
-    "TCS.NS", "INFY.NS", "WIPRO.NS", "HCLTECH.NS", "TECHM.NS", "LTIM.NS", "PERSISTENT.NS",  # IT & Technology
+    "TCS.NS", "INFY.NS", "WIPRO.NS", "HCLTECH.NS", "TECHM.NS", "LTIM.NS", "PERSISTENT.NS",
     
-    "RELIANCE.NS", "IOC.NS", "BPCL.NS", "ONGC.NS", "POWERGRID.NS", "NTPC.NS", "TATAPOWER.NS",  # Energy & Utilities
+    "RELIANCE.NS", "IOC.NS", "BPCL.NS", "ONGC.NS", "POWERGRID.NS", "NTPC.NS", "TATAPOWER.NS",
     
-    "MARUTI.NS", "TATAMOTORS.NS", "M&M.NS", "BAJAJ-AUTO.NS", "HEROMOTOCO.NS",  # Automobile
+    "MARUTI.NS", "TATAMOTORS.NS", "M&M.NS", "BAJAJ-AUTO.NS", "HEROMOTOCO.NS",
     
-    "HINDUNILVR.NS", "ITC.NS", "NESTLEIND.NS", "DABUR.NS", "BRITANNIA.NS",  # FMCG
+    "HINDUNILVR.NS", "ITC.NS", "NESTLEIND.NS", "DABUR.NS", "BRITANNIA.NS",
     
-    "SUNPHARMA.NS", "DRREDDY.NS", "CIPLA.NS", "LUPIN.NS",  # Pharmaceuticals
+    "SUNPHARMA.NS", "DRREDDY.NS", "CIPLA.NS", "LUPIN.NS",
     
-    "TATASTEEL.NS", "JSWSTEEL.NS", "HINDALCO.NS", "COALINDIA.NS",  # Metals & Mining
+    "TATASTEEL.NS", "JSWSTEEL.NS", "HINDALCO.NS", "COALINDIA.NS",
     
-    "LT.NS", "GRASIM.NS", "ULTRACEMCO.NS", "SHREECEM.NS",  # Infrastructure & Cement
+    "LT.NS", "GRASIM.NS", "ULTRACEMCO.NS", "SHREECEM.NS",
     
-    "BHARTIARTL.NS", "DMART.NS", "INDIGO.NS", "ADANIENT.NS", "ADANIPORTS.NS"  # Telecom, Retail, Aviation, Adani Group
+    "BHARTIARTL.NS", "DMART.NS", "INDIGO.NS", "ADANIENT.NS", "ADANIPORTS.NS"
 ]
 
 
 
     return universe
 
-# ------------------ PORTFOLIO RECOMMENDATION ------------------
 def cap_weights(weights, cap):
-    """
-    Iteratively adjust weights so that no ticker's weight exceeds 'cap'.
-    The excess is redistributed proportionally among those below the cap.
-    """
-    # Start with initial weights (which sum to 1)
     capped = dict(weights)
     while True:
-        # Identify tickers that exceed the cap
         over_cap = {ticker: w for ticker, w in capped.items() if w > cap}
         if not over_cap:
-            break  # All weights are within the cap
-        # Calculate the total excess over the cap
+            break
         excess = sum(w - cap for w in over_cap.values())
-        # Set weights for tickers over the cap to the cap
         for ticker in over_cap:
             capped[ticker] = cap
-        # Identify tickers below the cap
         under_cap = {ticker: w for ticker, w in capped.items() if w < cap}
         total_under = sum(under_cap.values())
-        # If there's no room for redistribution, break
         if total_under == 0:
             break
-        # Redistribute the excess proportionally among under-cap tickers
         for ticker in under_cap:
-            # Increase weight by proportion of current weight relative to total under-cap weight
             addition = excess * (capped[ticker] / total_under)
             capped[ticker] = min(capped[ticker] + addition, cap)
-        # Re-normalize so that the weights sum to 1
         total = sum(capped.values())
         for ticker in capped:
             capped[ticker] /= total
@@ -304,7 +277,6 @@ def recommend_portfolio(risk_level, income, goal_duration, monthly_investment, t
         logging.error("Not enough diversified candidates found.")
         return (None, None)
 
-    # Dynamic filtering: keep only tickers above the 75th percentile
     returns_array = np.array(list(computed_returns.values()))
     threshold = np.percentile(returns_array, 75)
     logging.info(f"Dynamic threshold (75th percentile): {threshold:.4f}")
@@ -313,7 +285,6 @@ def recommend_portfolio(risk_level, income, goal_duration, monthly_investment, t
         logging.error("Not enough candidates remain after filtering by percentile.")
         return (None, None)
 
-    # Gather additional ticker info (sector, market cap)
     ticker_details = {}
     for ticker in filtered_scores.keys():
         try:
@@ -325,7 +296,6 @@ def recommend_portfolio(risk_level, income, goal_duration, monthly_investment, t
             logging.error(f"Error fetching info for {ticker}: {e}")
             ticker_details[ticker] = {'market_cap': 1, 'sector': 'Unknown'}
 
-    # Calculate weighted scores using short-term return and market cap
     weighted_scores = {ticker: filtered_scores[ticker][0] * ticker_details[ticker]['market_cap']
                        for ticker in filtered_scores.keys()}
     total_weight = sum(weighted_scores.values())
@@ -333,11 +303,9 @@ def recommend_portfolio(risk_level, income, goal_duration, monthly_investment, t
         return (None, None)
     allocation = {ticker: weighted_scores[ticker] / total_weight for ticker in weighted_scores}
 
-    # Apply a maximum weight cap (e.g., 30% or 0.30) dynamically
     const_max_weight = 0.15
     allocation = cap_weights(allocation, const_max_weight)
 
-    # Compute overall portfolio expected annual return using our short-term proxy
     portfolio_expected_return = sum(allocation[ticker] * filtered_scores[ticker][1] for ticker in allocation)
     if portfolio_expected_return <= 0:
         logging.error("Overall portfolio expected return is non-positive.")
@@ -347,14 +315,13 @@ def recommend_portfolio(risk_level, income, goal_duration, monthly_investment, t
     n = goal_duration * 12
     required_PMT = target_amount * r_monthly / ((1 + r_monthly)**n - 1)
 
-    # Build result details for each ticker
     recommendations = []
     for ticker in allocation:
         rec = {
             "ticker": ticker,
-            "weight": round(allocation[ticker] * 100, 1),  # percentage
+            "weight": round(allocation[ticker] * 100, 1),
             "sector": ticker_details[ticker]['sector'],
-            "expected_annual_gain": round(filtered_scores[ticker][1] * 100, 2)  # percentage
+            "expected_annual_gain": round(filtered_scores[ticker][1] * 100, 2)
         }
         recommendations.append(rec)
 
@@ -366,11 +333,6 @@ def recommend_portfolio(risk_level, income, goal_duration, monthly_investment, t
     
     return recommendations, required_PMT
 
-
-
-
-
-# ------------------ COMMAND-LINE INTERFACE ------------------
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Portfolio Recommendation based on Goal Settings")
     parser.add_argument('--risk_level', type=str, required=True, help="Risk level (Conservative, Moderate, Aggressive)")
@@ -393,4 +355,6 @@ if __name__ == '__main__':
         "recommendations": recommendations,
         "required_PMT": required_PMT
     }
+    
+    logging.info("Final result to be JSON serialized: %s", result)
     print(json.dumps(result))
