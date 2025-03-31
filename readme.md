@@ -28,7 +28,6 @@ InvestoMate leverages state-of-the-art AI to help users manage their personal we
 ## Features
 
 - **User Onboarding & Authentication:** Secure and scalable user registration, login, and session management.
-- **Dynamic Dashboard:** Visualize portfolio performance, spending patterns, and investment opportunities via interactive charts.
 - **Expense Optimization:** Automated classification of expenses into Needs, Wants, and Savings along with optimization strategies.
 - **AI-Driven Insights:** Utilize machine learning models (e.g., LSTM for prediction, sentiment analysis) and integrate with third-party AI services to generate investment recommendations.
 - **Real-time Market Data:** Seamless integration with financial data APIs to provide up-to-date market information.
