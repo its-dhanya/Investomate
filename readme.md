@@ -16,7 +16,7 @@ InvestoMate is an AI-driven personal wealth management platform that provides po
   - [Development](#development)
   - [Production Build](#production-build)
 - [UI Previews](#ui-previews)
-- [Application Flowcharts](#application-flowcharts)
+- [Application Flowcharts](#flowcharts)
 - [Troubleshooting](#troubleshooting)
 
 ## Overview
@@ -166,7 +166,7 @@ Below are screenshots showcasing different UI sections of InvestoMate:
 
 
 
-## **Flow Chart**
+## Flow Chart
 ```mermaid
 graph TD;
   A[Investomate] --> B[User Authentication];
