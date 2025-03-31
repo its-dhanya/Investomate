@@ -16,7 +16,6 @@ InvestoMate is an AI-driven personal wealth management platform that provides po
   - [Development](#development)
   - [Production Build](#production-build)
 - [UI Previews](#ui-previews)
-- [Application Flowcharts](#flowcharts)
 - [Troubleshooting](#troubleshooting)
 
 ## Overview
@@ -33,7 +32,6 @@ InvestoMate leverages state-of-the-art AI to help users manage their personal we
 - **AI-Driven Insights:** Utilize machine learning models (e.g., LSTM for prediction, sentiment analysis) and integrate with third-party AI services to generate investment recommendations.
 - **Real-time Market Data:** Seamless integration with financial data APIs to provide up-to-date market information.
 
-## Flow Chart
 ```mermaid
 graph TD;
   A[Investomate] --> B[User Authentication];
