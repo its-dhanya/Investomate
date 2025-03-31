@@ -15,8 +15,9 @@ InvestoMate is an AI-driven personal wealth management platform that provides po
 - [Running the Application](#running-the-application)
   - [Development](#development)
   - [Production Build](#production-build)
+- [UI Previews](#ui-previews)
+- [Application Flowcharts](#application-flowcharts)
 - [Troubleshooting](#troubleshooting)
-
 
 ## Overview
 
@@ -133,9 +134,50 @@ To preview the production build locally:
 npm run preview
 ```
 
+## UI Previews
+
+Below are screenshots showcasing different UI sections of InvestoMate:
+
+### **Dashboard Preview**
+![dash](https://github.com/user-attachments/assets/c7f4800b-b4ca-4b65-b978-e5f8c8fdb0c2)
+
+### **Signup Page**
+![sgup](https://github.com/user-attachments/assets/213e9091-6daa-43fd-b643-30b99f1ffeeb)
+
+
+### **Goal setting**
+![goalsetcon](https://github.com/user-attachments/assets/54dac5d5-a0c8-4562-9840-9dec7e23ac5f)
+
+### **Portfolio Management UI**
+![portf](https://github.com/user-attachments/assets/5a3ecd1a-0761-4d96-81c8-365453fe9c93)
+
+### **Simulation**
+![investsim](https://github.com/user-attachments/assets/62efd238-3ae2-425a-94b0-7ed35639049b)
+![simres](https://github.com/user-attachments/assets/91cca83f-fdf5-48a8-9e75-f9b2a0802751)
+
+
+### **Investment Insights**
+![insights](https://github.com/user-attachments/assets/969edfdb-7896-4684-91d0-4a71a1e87b5c)
+
+
+
+
+
+
+
+
+### **Flowchart**
+![WhatsApp Image 2025-03-31 at 19 04 58_07fa986f](https://github.com/user-attachments/assets/a7a72352-563f-4ea7-8bc2-d15a95876d9c)
+)
+
+
+
 ## Troubleshooting
 
 - **Node.js Version:** Ensure you’re running a compatible Node.js version (use `node -v`).
 - **Environment Variables:** Verify that the `.env` file is correctly configured.
 - **API Connectivity:** Confirm that the Python back-end service is running to prevent API errors on the front-end.
 - **Error Logs:** Check terminal and browser console logs for troubleshooting hints.
+
+---
+
