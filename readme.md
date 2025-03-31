@@ -150,25 +150,27 @@ npm run preview
 Below are screenshots showcasing different UI sections of InvestoMate:
 
 ### **Dashboard Preview**
-![dash](https://github.com/user-attachments/assets/c7f4800b-b4ca-4b65-b978-e5f8c8fdb0c2)
+![dash](https://github.com/user-attachments/assets/498960cd-630b-4895-bc11-d9d1bdf0c0e0)
 
 ### **Signup Page**
-![sgup](https://github.com/user-attachments/assets/213e9091-6daa-43fd-b643-30b99f1ffeeb)
-
+![sgup](https://github.com/user-attachments/assets/187ca087-b722-4edb-bd4f-a973089982ca)
 
 ### **Goal setting**
-![goalsetcon](https://github.com/user-attachments/assets/54dac5d5-a0c8-4562-9840-9dec7e23ac5f)
+![goalsetcon](https://github.com/user-attachments/assets/ad5745af-3594-4b04-879f-43daae26b3f8)
 
 ### **Portfolio Management UI**
-![portf](https://github.com/user-attachments/assets/5a3ecd1a-0761-4d96-81c8-365453fe9c93)
+![portf](https://github.com/user-attachments/assets/42f7894e-57da-47c8-875d-e008642d099e)
+
 
 ### **Simulation**
-![investsim](https://github.com/user-attachments/assets/62efd238-3ae2-425a-94b0-7ed35639049b)
-![simres](https://github.com/user-attachments/assets/91cca83f-fdf5-48a8-9e75-f9b2a0802751)
+![investsim](https://github.com/user-attachments/assets/ee4a4393-160e-4f03-b193-671d50b88932)
+
+![simres](https://github.com/user-attachments/assets/f7f7be0d-ed26-4c09-9c8c-d84fc8c438d6)
 
 
 ### **Investment Insights**
-![insights](https://github.com/user-attachments/assets/969edfdb-7896-4684-91d0-4a71a1e87b5c)
+![insights](https://github.com/user-attachments/assets/6e32dc83-5e99-40c2-a92c-2674b07db0f7)
+
 
 
 ## Troubleshooting
