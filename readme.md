@@ -169,6 +169,16 @@ Below are screenshots showcasing different UI sections of InvestoMate:
 ### **Flowchart**
 ![WhatsApp Image 2025-03-31 at 19 04 58_07fa986f](https://github.com/user-attachments/assets/a7a72352-563f-4ea7-8bc2-d15a95876d9c)
 )
+### **Investment Recommendation Process**
+```mermaid
+graph TD;
+  A[Investomate] --> B[User Authentication];
+  A --> C[Dashboard];
+  A --> D[Portfolio Management];
+  D --> E[Risk Analysis];
+  D --> F[Returns];
+  A --> E[Market Insights];
+```
 
 
 
